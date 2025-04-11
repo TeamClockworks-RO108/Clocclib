@@ -1,6 +1,6 @@
 val libVersion by extra { "0.3.1" }
-val mavenUsername by extra { project.findProperty("mavenUsername") ?: System.getenv("MAVEN_USERNAME") }
-val mavenPassword by extra { project.findProperty("mavenPassword") ?: System.getenv("MAVEN_PASSWORD") }
+val mavenUsername by extra { System.getenv("MAVEN_USERNAME") ?: project.findProperty("mavenUsername") }
+val mavenPassword by extra { System.getenv("MAVEN_PASSWORD") ?: project.findProperty("mavenPassword") }
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
