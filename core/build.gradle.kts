@@ -56,6 +56,8 @@ dependencies {
 
     implementation(libs.guice)
     implementation(libs.hardware)
+    implementation(libs.ftccommon)
+    implementation(libs.robotcore)
 
     testImplementation(libs.junit)
 }
