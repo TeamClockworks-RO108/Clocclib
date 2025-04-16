@@ -1,6 +1,5 @@
 package ro.clockworks.clocclib.core;
 
-import android.media.audiofx.AcousticEchoCanceler;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
