@@ -61,7 +61,6 @@ public class GamepadMapper {
 
     private void checkMappingsChange() {
 
-        boolean swap = false;
         long time = System.currentTimeMillis();
 
         for (int i = 0; i < realGamepads.length; i++) {
@@ -70,6 +69,12 @@ public class GamepadMapper {
                 newMapping -= 1;
                 try {
                     Class<? extends Annotation> type = gamepadOrdering.get(newMapping);
+                    for (int j = 0; j < mappings.length; j++) {
+                        if (i != j && type == mappings[j]) {
+                            mappings[j] = mappings[i];
+                            break;
+                        }
+                    }
                     mappings[i] = type;
                 } catch (IndexOutOfBoundsException _unused) {
                     // do nothing - invalid command
