@@ -76,7 +76,7 @@ public class GamepadMapper {
         long time = System.currentTimeMillis();
 
         for (int i = 0; i < realGamepads.length; i++) {
-            int newMapping = multiclickDetectors[i].update(time, realGamepads[i].share);
+            int newMapping = multiclickDetectors[i].update(time, realGamepads[i].share ^ realGamepads[i].guide);
             if (newMapping != 0) {
                 newMapping -= 1;
                 try {
@@ -98,7 +98,8 @@ public class GamepadMapper {
 
     private void printMappings() {
         for (int i = 0; i < realGamepads.length; i++) {
-            telemetry.addData("Gamepad " + i + " is mapped to ", mappings[i].getSimpleName().replace("Gamepad", "").toUpperCase());
+            telemetry.addData("Gamepad " + (i + 1) + " is mapped to", mappings[i].getSimpleName().replace("Gamepad", "").toUpperCase());
+            telemetry.addData("Gamepad " + (i + 1) + " counter at", multiclickDetectors[i].counter());
         }
     }
 
@@ -129,6 +130,10 @@ public class GamepadMapper {
 // this shit here is a hack
 class MilticlickDetector {
 
+    public int counter() {
+        return counter;
+    }
+
     private int counter = 0;
     private long lastTime = 0;
 
@@ -146,7 +151,7 @@ class MilticlickDetector {
         currentTime = time;
         detector.update(state);
 
-        if (counter != 0 && time - lastTime > 700) {
+        if (counter != 0 && time - lastTime > 1500) {
             int cnt = counter;
             counter = 0;
             return cnt;
