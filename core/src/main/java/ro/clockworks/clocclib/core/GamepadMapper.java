@@ -46,6 +46,10 @@ public class GamepadMapper {
         this.telemetry = telemetry;
     }
 
+    public void init() {
+        updateEdgers();
+    }
+
     public void preUpdate() {
 
         // Copy from real gamepads to code gamepads

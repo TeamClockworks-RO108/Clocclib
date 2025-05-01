@@ -18,7 +18,16 @@ public abstract class InjectedOpMode extends OpMode {
                 new FtcCommonModule(hardwareMap, gamepad1, gamepad2, telemetry)
         );
         injector.injectMembers(this);
+        mapper.init();
         robotInit();
+    }
+
+    @Override
+    public void init_loop() {
+        mapper.preUpdate();
+        robotInitLoop();
+        mapper.postUpdate();
+        telemetry.update();
     }
 
     @Override
@@ -31,13 +40,18 @@ public abstract class InjectedOpMode extends OpMode {
     public final void loop() {
         mapper.preUpdate();
         robotLoop();
-        telemetry.update();
         mapper.postUpdate();
+        telemetry.update();
     }
+
 
     protected abstract void robotInit();
 
     protected abstract void robotStart();
 
     protected abstract void robotLoop();
+
+    protected void robotInitLoop() {
+        // nothing
+    }
 }
