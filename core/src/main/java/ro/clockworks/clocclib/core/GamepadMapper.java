@@ -105,6 +105,7 @@ public class GamepadMapper {
             copyAvailableGamepadsEdgers.remove(mappings[i]);
         }
         copyAvailableGamepadsEdgers.forEach((aClass, edgeDetector) -> edgeDetector.update(false));
+        copyAvailableGamepadsEdgers.clear();
     }
 
     public Gamepad getGamepad(Class<? extends Annotation> clazz) {
