@@ -30,6 +30,7 @@ public class FtcCommonModule extends AbstractModule {
     protected void configure() {
         bind(HardwareMap.class).toInstance(hardwareMap);
         bind(Telemetry.class).toInstance(telemetry);
+        bind(GamepadMapper.class).toInstance(mapper);
         bind(Gamepad.class).annotatedWith(Gamepad1.class).toInstance(mapper.getGamepad(Gamepad1.class));
         bind(Gamepad.class).annotatedWith(Gamepad2.class).toInstance(mapper.getGamepad(Gamepad2.class));
         bind(Gamepad.class).annotatedWith(GamepadConfig.class).toInstance(mapper.getGamepad(GamepadConfig.class));
