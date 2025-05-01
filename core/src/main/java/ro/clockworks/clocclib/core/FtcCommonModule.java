@@ -34,6 +34,10 @@ public class FtcCommonModule extends AbstractModule {
         bind(Gamepad.class).annotatedWith(Gamepad2.class).toInstance(mapper.getGamepad(Gamepad2.class));
         bind(Gamepad.class).annotatedWith(GamepadConfig.class).toInstance(mapper.getGamepad(GamepadConfig.class));
         bind(Gamepad.class).annotatedWith(GamepadTuner.class).toInstance(mapper.getGamepad(GamepadTuner.class));
+        bind(EdgeDetector.class).annotatedWith(Gamepad1.class).toInstance(mapper.getGamepadEdger(Gamepad1.class));
+        bind(EdgeDetector.class).annotatedWith(Gamepad2.class).toInstance(mapper.getGamepadEdger(Gamepad2.class));
+        bind(EdgeDetector.class).annotatedWith(GamepadConfig.class).toInstance(mapper.getGamepadEdger(GamepadConfig.class));
+        bind(EdgeDetector.class).annotatedWith(GamepadTuner.class).toInstance(mapper.getGamepadEdger(GamepadTuner.class));
     }
 
 

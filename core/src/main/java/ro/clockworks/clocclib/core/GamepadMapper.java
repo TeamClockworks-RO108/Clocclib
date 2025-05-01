@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.lang.annotation.Annotation;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,14 @@ public class GamepadMapper {
             GamepadTuner.class, new Gamepad()
     );
 
+    private final Map<Class<? extends Annotation>, EdgeDetector> availableGamepadsEdgers = Map.of(
+            Gamepad1.class, new EdgeDetector(false),
+            Gamepad2.class, new EdgeDetector(false),
+            GamepadConfig.class, new EdgeDetector(false),
+            GamepadTuner.class, new EdgeDetector(false)
+    );
+
+
     private final List<Class<? extends Annotation>> gamepadOrdering = List.of(
             Gamepad1.class, Gamepad2.class, GamepadConfig.class, GamepadTuner.class
     );
@@ -27,8 +36,6 @@ public class GamepadMapper {
     };
 
     private final Class<? extends Annotation>[] mappings = new Class[]{Gamepad1.class, Gamepad2.class};
-
-
 
     private final Gamepad[] realGamepads;
 
@@ -48,6 +55,7 @@ public class GamepadMapper {
 
         // Check for buttons for mapping changes
         checkMappingsChange();
+        updateEdgers();
         printMappings();
     }
 
@@ -90,8 +98,21 @@ public class GamepadMapper {
         }
     }
 
+    private void updateEdgers() {
+        var copyAvailableGamepadsEdgers = new HashMap<>(availableGamepadsEdgers);
+        for (int i = 0; i < realGamepads.length; i++) {
+            copyAvailableGamepadsEdgers.get(mappings[i]).update(true);
+            copyAvailableGamepadsEdgers.remove(mappings[i]);
+        }
+        copyAvailableGamepadsEdgers.forEach((aClass, edgeDetector) -> edgeDetector.update(false));
+    }
+
     public Gamepad getGamepad(Class<? extends Annotation> clazz) {
         return availableGamepads.get(clazz);
+    }
+
+    public EdgeDetector getGamepadEdger(Class<? extends Annotation> clazz) {
+        return availableGamepadsEdgers.get(clazz);
     }
 
 
