@@ -103,7 +103,7 @@ public class GamepadMapper {
     }
 
     private void updateEdgers() {
-        var copyAvailableGamepadsEdgers = new HashMap<>(availableGamepadsEdgers);
+        Map<Class<? extends Annotation>, EdgeDetector> copyAvailableGamepadsEdgers = new HashMap<>(availableGamepadsEdgers);
         for (int i = 0; i < realGamepads.length; i++) {
             copyAvailableGamepadsEdgers.get(mappings[i]).update(true);
             copyAvailableGamepadsEdgers.remove(mappings[i]);
