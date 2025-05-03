@@ -99,7 +99,7 @@ public class GamepadMapper {
     private void printMappings() {
         for (int i = 0; i < realGamepads.length; i++) {
             telemetry.addData("Gamepad " + (i + 1) + " is mapped to", mappings[i].getSimpleName().replace("Gamepad", "").toUpperCase());
-            telemetry.addData("Gamepad " + (i + 1) + " counter at", multiclickDetectors[i].counter());
+            //telemetry.addData("Gamepad " + (i + 1) + " counter at", multiclickDetectors[i].counter());
         }
     }
 
@@ -151,7 +151,7 @@ class MilticlickDetector {
         currentTime = time;
         detector.update(state);
 
-        if (counter != 0 && time - lastTime > 1500) {
+        if (counter != 0 && time - lastTime > 1000) {
             int cnt = counter;
             counter = 0;
             return cnt;

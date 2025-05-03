@@ -24,9 +24,12 @@ public abstract class InjectedOpMode extends OpMode {
 
     @Override
     public void init_loop() {
+        long time = System.currentTimeMillis();
         mapper.preUpdate();
         robotInitLoop();
         mapper.postUpdate();
+        long timeAfter = System.currentTimeMillis();
+        telemetry.addData("Loop time", timeAfter - time);
         telemetry.update();
     }
 
@@ -38,9 +41,12 @@ public abstract class InjectedOpMode extends OpMode {
 
     @Override
     public final void loop() {
+        long time = System.currentTimeMillis();
         mapper.preUpdate();
         robotLoop();
         mapper.postUpdate();
+        long timeAfter = System.currentTimeMillis();
+        telemetry.addData("Loop time", timeAfter - time);
         telemetry.update();
     }
 
