@@ -1,4 +1,4 @@
-package ro.clockworks.clocclib.core;
+package ro.clockworks.clocclib.core.injection;
 
 import com.google.inject.BindingAnnotation;
 
@@ -10,7 +10,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 @BindingAnnotation
-public @interface GamepadConfig {
+public @interface Hardware {
+    String value();
 }
-
-

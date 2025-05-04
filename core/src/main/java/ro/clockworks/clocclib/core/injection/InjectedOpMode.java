@@ -1,9 +1,11 @@
-package ro.clockworks.clocclib.core;
+package ro.clockworks.clocclib.core.injection;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import ro.clockworks.clocclib.core.gamepads.GamepadMapper;
 
 public abstract class InjectedOpMode extends OpMode {
 
@@ -17,6 +19,7 @@ public abstract class InjectedOpMode extends OpMode {
         injector = Guice.createInjector(
                 new FtcCommonModule(hardwareMap, gamepad1, gamepad2, telemetry)
         );
+        FtcCommonModule.configureGlobalInjector(injector);
         injector.injectMembers(this);
         mapper.init();
         robotInit();

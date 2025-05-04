@@ -1,4 +1,4 @@
-package ro.clockworks.clocclib.core;
+package ro.clockworks.clocclib.core.gamepads;
 
 
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -9,6 +9,8 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import ro.clockworks.clocclib.core.EdgeDetector;
 
 public class GamepadMapper {
 

@@ -1,4 +1,4 @@
-package ro.clockworks.clocclib.core;
+package ro.clockworks.clocclib.core.servotuner;
 
 import com.google.inject.BindingAnnotation;
 
@@ -10,7 +10,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 @BindingAnnotation
-public @interface GamepadTuner {
+public @interface AutoServoParameters {
+    String servoHardwareName();
+    String analogHardwareName() default "";
+
 }
-
-
