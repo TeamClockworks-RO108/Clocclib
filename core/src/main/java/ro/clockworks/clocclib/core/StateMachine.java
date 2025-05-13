@@ -10,6 +10,8 @@ import java.util.function.Supplier;
 
 public class StateMachine <E extends Enum<?>> {
 
+    boolean runningUpdate = false;
+
     private E currentState = null;
     private E initialState;
 
@@ -79,6 +81,8 @@ public class StateMachine <E extends Enum<?>> {
     }
 
     public void forceTransitionTo(E state) {
+        if (runningUpdate)
+            throw new IllegalStateException("Trying to force a state machine to run a transition while update is running.");
         forceStateTo = state;
         _update(false);
     }
@@ -96,6 +100,7 @@ public class StateMachine <E extends Enum<?>> {
         if (forceStateTo != null)
             nextState = forceStateTo;
 
+        runningUpdate = true;
         while (true) {
             if (nextState != null) {
                 dispatchEvent(EventType.EXIT);
@@ -118,6 +123,7 @@ public class StateMachine <E extends Enum<?>> {
             if (nextState == null)
                 break;
         }
+        runningUpdate = false;
     }
 
     private E dispatchEvent(EventType type) {
