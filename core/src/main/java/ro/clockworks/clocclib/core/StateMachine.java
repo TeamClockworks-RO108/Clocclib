@@ -13,6 +13,8 @@ public class StateMachine <E extends Enum<?>> {
     private E currentState = null;
     private E initialState;
 
+    private E forceStateTo = null;
+
     private long zeroTime = 0;
     private final Map<EventType, Map<E, EventHandler<E>>> events = new HashMap<>();
 
@@ -76,6 +78,11 @@ public class StateMachine <E extends Enum<?>> {
         stateChangeListener.add(listener);
     }
 
+    public void forceTransitionTo(E state) {
+        forceStateTo = state;
+        _update(false);
+    }
+
     public void update() {
         _update(false);
     }
@@ -84,8 +91,11 @@ public class StateMachine <E extends Enum<?>> {
         if (currentState == null)
             return;
 
-
         E nextState = null;
+
+        if (forceStateTo != null)
+            nextState = forceStateTo;
+
         while (true) {
             if (nextState != null) {
                 dispatchEvent(EventType.EXIT);
