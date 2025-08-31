@@ -8,22 +8,22 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class ServoPositionsManager {
 
     private static ServoPositionsManager singletonInstance = null;
 
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     private final List<ServoEntry> servosDatabase = new ArrayList<>();
+
+    private final Set<AutoServo<?>> registeredServos = new HashSet<>();
 
     private final ExecutorService ioService = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r);
@@ -31,6 +31,9 @@ public class ServoPositionsManager {
         t.setDaemon(true);
         return t;
     });
+
+    private ServoPositionsManager() {
+    }
 
     public synchronized static ServoPositionsManager instance() {
         if (singletonInstance == null) {
@@ -77,6 +80,10 @@ public class ServoPositionsManager {
     }
 
     public <T extends Enum<T>> PositionEntry getPosition(AutoServo<T> servo, T position) {
+        registeredServos.add(servo);
+        if (position == null)
+            return null;
+
         ServoEntry entry = servosDatabase.stream().filter(se -> se.hwname().equals(servo.servoHwName())).findAny().orElse(null);
         if (entry == null) {
             entry = new ServoEntry();
@@ -95,8 +102,15 @@ public class ServoPositionsManager {
     }
 
     public <T extends Enum<T>> void setAnalogInfo(AutoServo<T> servo, T position, double analog) {
+        if (position == null)
+            return;
+
         getPosition(servo, position).analog(analog);
         writeDb();
+    }
+
+    public void forEachServo(Consumer<AutoServo<?>> action) {
+        registeredServos.forEach(action);
     }
 
     private File getFileDbPath() {
@@ -104,7 +118,7 @@ public class ServoPositionsManager {
     }
 
 
-    public class ServoEntry {
+    public static class ServoEntry {
         private String hwname;
 
         private List<PositionEntry> positions;
@@ -128,7 +142,7 @@ public class ServoPositionsManager {
         }
     }
 
-    public class PositionEntry {
+    public static class PositionEntry {
         private String name;
         private Double value;
 

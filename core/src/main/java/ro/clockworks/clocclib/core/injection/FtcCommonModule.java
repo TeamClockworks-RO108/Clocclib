@@ -23,6 +23,7 @@ import ro.clockworks.clocclib.core.gamepads.GamepadConfig;
 import ro.clockworks.clocclib.core.gamepads.GamepadMapper;
 import ro.clockworks.clocclib.core.gamepads.GamepadTuner;
 import ro.clockworks.clocclib.core.servotuner.AutoServo;
+import ro.clockworks.clocclib.core.servotuner.ServoPositionsManager;
 import ro.clockworks.clocclib.core.servotuner.injection.AutoServoParametersImpl;
 import ro.clockworks.clocclib.core.servotuner.injection.AutoServoProvider;
 
@@ -51,6 +52,7 @@ public class FtcCommonModule extends AbstractModule {
         bind(HardwareMap.class).toInstance(hardwareMap);
         bind(Telemetry.class).toInstance(telemetry);
         bind(GamepadMapper.class).toInstance(mapper);
+        bind(ServoPositionsManager.class).toInstance(ServoPositionsManager.instance());
         bind(Gamepad.class).annotatedWith(Gamepad1.class).toInstance(mapper.getGamepad(Gamepad1.class));
         bind(Gamepad.class).annotatedWith(Gamepad2.class).toInstance(mapper.getGamepad(Gamepad2.class));
         bind(Gamepad.class).annotatedWith(GamepadConfig.class).toInstance(mapper.getGamepad(GamepadConfig.class));

@@ -6,6 +6,8 @@ import com.google.inject.Injector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import ro.clockworks.clocclib.core.gamepads.GamepadMapper;
+import ro.clockworks.clocclib.core.servotuner.AutoServo;
+import ro.clockworks.clocclib.core.servotuner.ServoPositionsManager;
 
 public abstract class InjectedOpMode extends OpMode {
 
@@ -13,6 +15,9 @@ public abstract class InjectedOpMode extends OpMode {
 
     @Inject
     private GamepadMapper mapper;
+
+    @Inject
+    private ServoPositionsManager servoPositionsManager;
 
     @Override
     public final void init() {
@@ -30,6 +35,7 @@ public abstract class InjectedOpMode extends OpMode {
         long time = System.currentTimeMillis();
         mapper.preUpdate();
         robotInitLoop();
+        servoPositionsManager.forEachServo(AutoServo::update);
         mapper.postUpdate();
         long timeAfter = System.currentTimeMillis();
         telemetry.addData("Loop time", timeAfter - time);
@@ -47,6 +53,7 @@ public abstract class InjectedOpMode extends OpMode {
         long time = System.currentTimeMillis();
         mapper.preUpdate();
         robotLoop();
+        servoPositionsManager.forEachServo(AutoServo::update);
         mapper.postUpdate();
         long timeAfter = System.currentTimeMillis();
         telemetry.addData("Loop time", timeAfter - time);

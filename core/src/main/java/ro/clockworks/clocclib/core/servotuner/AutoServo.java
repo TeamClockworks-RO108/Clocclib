@@ -34,6 +34,10 @@ public class AutoServo<T extends Enum<T>> {
 
     private T currentPose;
 
+    private Double cachedPwmPower;
+
+    private boolean inited;
+
     public AutoServo(String servoHwName, String analogHwName) {
         this.servoHwName = servoHwName;
         this.analogHwName = analogHwName;
@@ -43,29 +47,53 @@ public class AutoServo<T extends Enum<T>> {
         } catch (Exception e) {
             analog = null;
         }
+        inited = false;
     }
 
-    void init(T initialPose) {
+    public void init(T initialPose, boolean enabled) {
+        if (initialPose == null)
+            throw new IllegalArgumentException("AutoServo initial post MUST NOT ne null. If starting disabled, give false to the second parameter and give any pose as initial");
+        if (initialPose.getClass().getEnumConstants() == null)
+            throw new IllegalArgumentException("AutoServo type parameter " + initialPose.getClass().getSimpleName() + " is not an enum");
+
         possiblePoses = Arrays.stream(initialPose.getClass().getEnumConstants()).map(c -> (T)c).collect(Collectors.toList());
-        currentPose = initialPose;
-        positionsManager = ServoPositionsManager.instance();
+        currentPose = enabled ? initialPose : null;
+        cachedPwmPower = null;
 
         // Force all positions to be created in the manager
         possiblePoses.forEach(p -> positionsManager.getPosition(this, p));
+
+        inited = true;
     }
 
-    void goTo(T pose) {
-
+    public void goTo(T pose) {
+        currentPose = pose;
     }
 
-    void disable() {
-
+    public void disable() {
+        currentPose = null;
     }
 
 
 
-    void update() {
+    public void update() {
+        if (!inited)
+            return;
 
+        ServoPositionsManager.PositionEntry pos = positionsManager.getPosition(this, currentPose);
+        if (pos == null) {
+            if (cachedPwmPower != null) {
+                servo.setPwmDisable();
+                cachedPwmPower = null;
+            }
+        } else {
+            if (cachedPwmPower == null || !cachedPwmPower.equals(pos.value())) {
+                if (cachedPwmPower == null)
+                    servo.setPwmEnable();
+                servo.setPosition(pos.value());
+                cachedPwmPower = pos.value();
+            }
+        }
     }
 
     public String servoHwName() {
