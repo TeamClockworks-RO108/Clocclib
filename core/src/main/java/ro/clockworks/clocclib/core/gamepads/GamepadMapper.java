@@ -3,9 +3,11 @@ package ro.clockworks.clocclib.core.gamepads;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.robotcore.external.Consumer;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,15 +45,25 @@ public class GamepadMapper {
 
     private final Telemetry telemetry;
 
+    private boolean enableBackcopy = false;
+
     public GamepadMapper(Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry) {
         realGamepads = new Gamepad[] { gamepad1, gamepad2 };
         this.telemetry = telemetry;
+
+        for (int i = 0; i < realGamepads.length; i++) {
+            final int finali = i;
+            multiclickDetectors[i].onIncrement(c -> realGamepads[finali].rumbleBlips(c));
+        }
     }
 
     public void init() {
         updateEdgers();
     }
 
+    public void enableBackcopy(boolean enabled) {
+        this.enableBackcopy = enabled;
+    }
     public void preUpdate() {
 
         // Copy from real gamepads to code gamepads
@@ -67,9 +79,11 @@ public class GamepadMapper {
 
     public void postUpdate() {
 
-        // Copy from code gamepads back to real gamepads (for vibration support)
-        for (int i = 0; i < realGamepads.length; i++) {
-            realGamepads[i].copy(availableGamepads.get(mappings[i]));
+        // Copy from code gamepads back to real gamepads (for vibration support), if backcopy is enabled
+        if (enableBackcopy) {
+            for (int i = 0; i < realGamepads.length; i++) {
+                realGamepads[i].copy(availableGamepads.get(mappings[i]));
+            }
         }
     }
 
@@ -86,6 +100,7 @@ public class GamepadMapper {
                     for (int j = 0; j < mappings.length; j++) {
                         if (i != j && type == mappings[j]) {
                             mappings[j] = mappings[i];
+                            realGamepads[i].rumble(1, 1, 200);
                             break;
                         }
                     }
@@ -143,6 +158,8 @@ class MilticlickDetector {
 
     private final EdgeDetector detector = new EdgeDetector(false);
 
+    private final List<Consumer<Integer>> onInc = new ArrayList<>();
+
     public MilticlickDetector() {
         // We need to use functions for these shitz because of lambda capture will lock a single value for RHS of =
         detector.onPress(this::incrementCounter);
@@ -153,7 +170,7 @@ class MilticlickDetector {
         currentTime = time;
         detector.update(state);
 
-        if (counter != 0 && time - lastTime > 1000) {
+        if (!state && counter != 0 && time - lastTime > 500) {
             int cnt = counter;
             counter = 0;
             return cnt;
@@ -162,8 +179,13 @@ class MilticlickDetector {
         return 0;
     }
 
+    public void onIncrement(Consumer<Integer> action) {
+        onInc.add(action);
+    }
+
     private void incrementCounter() {
         counter++;
+        for (Consumer<Integer> action : onInc) action.accept(counter);
     }
 
     private void saveTimestamp() {

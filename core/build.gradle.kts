@@ -58,6 +58,10 @@ dependencies {
     implementation(libs.hardware)
     implementation(libs.ftccommon)
     implementation(libs.robotcore)
+    implementation(libs.jacksoncore)
+    implementation(libs.jacksondatabind)
+    implementation(libs.jacksonannotations)
+
 
     testImplementation(libs.junit)
 }

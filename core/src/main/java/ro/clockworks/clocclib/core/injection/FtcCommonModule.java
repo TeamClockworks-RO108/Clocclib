@@ -5,19 +5,13 @@ import com.google.inject.Injector;
 import com.google.inject.MembersInjector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.xmlpull.v1.XmlPullParser;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,9 +23,8 @@ import ro.clockworks.clocclib.core.gamepads.GamepadConfig;
 import ro.clockworks.clocclib.core.gamepads.GamepadMapper;
 import ro.clockworks.clocclib.core.gamepads.GamepadTuner;
 import ro.clockworks.clocclib.core.servotuner.AutoServo;
-import ro.clockworks.clocclib.core.servotuner.AutoServoParameters;
-import ro.clockworks.clocclib.core.servotuner.AutoServoParametersImpl;
-import ro.clockworks.clocclib.core.servotuner.AutoServoProvider;
+import ro.clockworks.clocclib.core.servotuner.injection.AutoServoParametersImpl;
+import ro.clockworks.clocclib.core.servotuner.injection.AutoServoProvider;
 
 public class FtcCommonModule extends AbstractModule {
 

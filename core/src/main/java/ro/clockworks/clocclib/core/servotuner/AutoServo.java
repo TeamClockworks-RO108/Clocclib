@@ -48,11 +48,35 @@ public class AutoServo<T extends Enum<T>> {
     void init(T initialPose) {
         possiblePoses = Arrays.stream(initialPose.getClass().getEnumConstants()).map(c -> (T)c).collect(Collectors.toList());
         currentPose = initialPose;
+        positionsManager = ServoPositionsManager.instance();
+
+        // Force all positions to be created in the manager
+        possiblePoses.forEach(p -> positionsManager.getPosition(this, p));
+    }
+
+    void goTo(T pose) {
+
+    }
+
+    void disable() {
+
     }
 
 
 
     void update() {
 
+    }
+
+    public String servoHwName() {
+        return servoHwName;
+    }
+
+    public String analogHwName() {
+        return analogHwName;
+    }
+
+    public List<T> possiblePoses() {
+        return possiblePoses;
     }
 }

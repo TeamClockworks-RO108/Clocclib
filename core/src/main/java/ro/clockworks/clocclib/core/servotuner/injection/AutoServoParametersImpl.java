@@ -1,13 +1,7 @@
-package ro.clockworks.clocclib.core.servotuner;
-
-import com.google.inject.BindingAnnotation;
+package ro.clockworks.clocclib.core.servotuner.injection;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Objects;
 
 public class AutoServoParametersImpl implements AutoServoParameters, Serializable {

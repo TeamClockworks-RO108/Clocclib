@@ -1,4 +1,4 @@
-package ro.clockworks.clocclib.core.servotuner;
+package ro.clockworks.clocclib.core.servotuner.injection;
 
 import com.google.inject.BindingAnnotation;
 
