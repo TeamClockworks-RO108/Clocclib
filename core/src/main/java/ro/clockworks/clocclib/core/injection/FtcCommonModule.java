@@ -17,11 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import ro.clockworks.clocclib.core.EdgeDetector;
-import ro.clockworks.clocclib.core.gamepads.Gamepad1;
-import ro.clockworks.clocclib.core.gamepads.Gamepad2;
-import ro.clockworks.clocclib.core.gamepads.GamepadConfig;
-import ro.clockworks.clocclib.core.gamepads.GamepadMapper;
-import ro.clockworks.clocclib.core.gamepads.GamepadTuner;
+import ro.clockworks.clocclib.core.gamepads.*;
 import ro.clockworks.clocclib.core.servotuner.AutoServo;
 import ro.clockworks.clocclib.core.servotuner.ServoPositionsManager;
 import ro.clockworks.clocclib.core.servotuner.injection.AutoServoParametersImpl;
@@ -65,9 +61,9 @@ public class FtcCommonModule extends AbstractModule {
 
         for (String servo : hardwareMap.servo.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList())) {
             for (String analog : hardwareMap.analogInput.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList())) {
-                bind(AutoServo.class).annotatedWith(new AutoServoParametersImpl(servo, analog)).toProvider(new AutoServoProvider(servo, analog));
+                bind(AutoServo.class).annotatedWith(new AutoServoParametersImpl(servo, analog)).toProvider(new AutoServoProvider(servo, analog, mapper));
             }
-            bind(AutoServo.class).annotatedWith(new AutoServoParametersImpl(servo, null)).toProvider(new AutoServoProvider(servo, ""));
+            bind(AutoServo.class).annotatedWith(new AutoServoParametersImpl(servo, null)).toProvider(new AutoServoProvider(servo, "", mapper));
         }
 
 

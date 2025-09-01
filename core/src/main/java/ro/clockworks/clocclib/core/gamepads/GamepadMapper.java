@@ -47,6 +47,13 @@ public class GamepadMapper {
 
     private boolean enableBackcopy = false;
 
+    private final List<TunerApp> apps = new ArrayList<>();
+
+    private int selectedApp = 0;
+
+    private final EdgeDetector nextApp = new EdgeDetector(false);
+    private final EdgeDetector prevApp = new EdgeDetector(false);
+
     public GamepadMapper(Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry) {
         realGamepads = new Gamepad[] { gamepad1, gamepad2 };
         this.telemetry = telemetry;
@@ -55,10 +62,16 @@ public class GamepadMapper {
             final int finali = i;
             multiclickDetectors[i].onIncrement(c -> realGamepads[finali].rumbleBlips(c));
         }
+
+        configureTunerApps();
     }
 
     public void init() {
         updateEdgers();
+    }
+
+    public void registerTunerApp(TunerApp app) {
+        apps.add(app);
     }
 
     public void enableBackcopy(boolean enabled) {
@@ -74,6 +87,7 @@ public class GamepadMapper {
         // Check for buttons for mapping changes
         checkMappingsChange();
         updateEdgers();
+        updateTunerApps();
         printMappings();
     }
 
@@ -128,6 +142,39 @@ public class GamepadMapper {
         }
         copyAvailableGamepadsEdgers.forEach((aClass, edgeDetector) -> edgeDetector.update(false));
         copyAvailableGamepadsEdgers.clear();
+    }
+
+    private void configureTunerApps() {
+        nextApp.onPress(() -> {
+            apps.get(selectedApp).disableApp();
+            selectedApp++;
+            if (selectedApp == apps.size())
+                selectedApp = 0;
+            apps.get(selectedApp).enableApp();
+        });
+        prevApp.onPress(() -> {
+            apps.get(selectedApp).disableApp();
+            selectedApp--;
+            if (selectedApp < 0)
+                selectedApp = apps.size() - 1;
+            apps.get(selectedApp).enableApp();
+        });
+        getGamepadEdger(GamepadTuner.class).onPress(() -> {
+            apps.get(selectedApp).enableApp();
+        });
+        getGamepadEdger(GamepadTuner.class).onRelease(() -> {
+            apps.get(selectedApp).disableApp();
+        });
+    }
+
+    private void updateTunerApps() {
+        if (getGamepadEdger(GamepadTuner.class).state()) {
+            Gamepad tuner = getGamepad(GamepadTuner.class);
+            nextApp.update(tuner.right_trigger > 0.05);
+            prevApp.update(tuner.left_trigger > 0.05);
+            telemetry.addLine("Tuner app " + selectedApp + ": " + apps.get(selectedApp).name());
+            apps.get(selectedApp).updateApp();
+        }
     }
 
     public Gamepad getGamepad(Class<? extends Annotation> clazz) {
