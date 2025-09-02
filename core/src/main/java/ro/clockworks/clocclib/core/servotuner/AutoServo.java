@@ -23,9 +23,9 @@ public class AutoServo<T extends Enum<T>> implements TunerApp {
     private final String servoHwName;
     private final String analogHwName;
 
-    private final ServoImplEx servo;
+    private ServoImplEx servo;
 
-    private final AnalogInput analog;
+    private AnalogInput analog;
 
     @Inject
     private HardwareMap hardwareMap;
@@ -51,14 +51,6 @@ public class AutoServo<T extends Enum<T>> implements TunerApp {
     public AutoServo(String servoHwName, String analogHwName) {
         this.servoHwName = servoHwName;
         this.analogHwName = analogHwName;
-        servo = hardwareMap.get(ServoImplEx.class, servoHwName);
-        AnalogInput an = null;
-        try {
-            an = hardwareMap.get(AnalogInput.class, analogHwName);
-        } catch (Exception e) {
-            // not found - nothing
-        }
-        this.analog = an;
         inited = false;
     }
 
@@ -67,6 +59,14 @@ public class AutoServo<T extends Enum<T>> implements TunerApp {
             throw new IllegalArgumentException("AutoServo initial post MUST NOT ne null. If starting disabled, give false to the second parameter and give any pose as initial");
         if (initialPose.getClass().getEnumConstants() == null)
             throw new IllegalArgumentException("AutoServo type parameter " + initialPose.getClass().getSimpleName() + " is not an enum");
+
+        servo = hardwareMap.get(ServoImplEx.class, servoHwName);
+        AnalogInput an = null;
+        try {
+            this.analog = hardwareMap.get(AnalogInput.class, analogHwName);
+        } catch (Exception e) {
+            // not found - nothing
+        }
 
         possiblePoses = Arrays.stream(initialPose.getClass().getEnumConstants()).map(c -> (T)c).collect(Collectors.toList());
         currentState = enabled ? new SimpleState<>(initialPose) : new DisabledState<>();

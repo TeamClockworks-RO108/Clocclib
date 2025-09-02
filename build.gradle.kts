@@ -1,4 +1,4 @@
-val libVersion by extra { "0.3.25" }
+val libVersion by extra { "0.3.26" }
 val mavenUsername by extra { System.getenv("MAVEN_USERNAME") ?: project.findProperty("mavenUsername") }
 val mavenPassword by extra { System.getenv("MAVEN_PASSWORD") ?: project.findProperty("mavenPassword") }
 
