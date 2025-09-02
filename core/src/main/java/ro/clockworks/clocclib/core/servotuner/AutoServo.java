@@ -74,6 +74,8 @@ public class AutoServo<T extends Enum<T>> implements TunerApp {
         // Force all positions to be created in the manager
         possiblePoses.forEach(p -> positionsManager.getPosition(this, p));
 
+        setupAppEdgers();
+
         inited = true;
     }
 
@@ -127,23 +129,63 @@ public class AutoServo<T extends Enum<T>> implements TunerApp {
         return possiblePoses;
     }
 
-    
 
 
+    private T editingPosition;
+    private double editingValue;
+    private double originalValue;
+
+    private final EdgeDetector upEdge = new EdgeDetector(false);
+    private final EdgeDetector downEdge = new EdgeDetector(true);
+    private final EdgeDetector leftEdge = new EdgeDetector(false);
+    private final EdgeDetector rightEdge = new EdgeDetector(true);
 
     @Override
     public String name() {
         return "ServoTuner for " + servoHwName;
     }
 
+    private void setupAppEdgers() {
+        rightEdge.onPress(() -> positionOffset(1));
+        leftEdge.onPress(() -> positionOffset(-1));
+        upEdge.onPress(() -> editingValue = Math.min(editingValue + .01, 1));
+        downEdge.onPress(() -> editingValue = Math.max(editingValue - .01, 0));
+    }
+
+    private void positionOffset(int count) {
+        positionsManager.setValueInfo(this, editingPosition, editingValue);
+        int index = possiblePoses.indexOf(editingPosition) + count;
+        while (index > possiblePoses.size()) index -= possiblePoses.size();
+        while (index < 0) index += possiblePoses.size();
+        editingPosition = possiblePoses.get(index);
+        originalValue = positionsManager.getPosition(this, editingPosition).value();
+        editingValue = originalValue;
+    }
+
     @Override
     public void updateApp() {
+        if (analog != null) {
+            telemetry.addLine("Auto tuning is available. Press X to start.");
+        } else {
+            telemetry.addLine("Auto tuning is not available. No analog input configured.");
+        }
+        telemetry.addLine("Press LEFT and RIGHT to select which position to tune");
+        telemetry.addLine("Press UP and DOWN to adjust the current position");
 
+        leftEdge.update(gamepad.dpad_left);
+        rightEdge.update(gamepad.dpad_right);
+        upEdge.update(gamepad.dpad_up);
+        downEdge.update(gamepad.dpad_down);
+
+        servo.setPosition(editingValue);
     }
 
     @Override
     public void enableApp() {
         appActive = true;
+        editingPosition = possiblePoses.get(0);
+        originalValue = positionsManager.getPosition(this, editingPosition).value();
+        editingValue = originalValue;
     }
 
     @Override
