@@ -63,7 +63,7 @@ public class FtcCommonModule extends AbstractModule {
             for (String analog : hardwareMap.analogInput.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList())) {
                 bind(AutoServo.class).annotatedWith(new AutoServoParametersImpl(servo, analog)).toProvider(new AutoServoProvider(servo, analog, mapper));
             }
-            bind(AutoServo.class).annotatedWith(new AutoServoParametersImpl(servo, null)).toProvider(new AutoServoProvider(servo, "", mapper));
+            bind(AutoServo.class).annotatedWith(new AutoServoParametersImpl(servo, "")).toProvider(new AutoServoProvider(servo, "", mapper));
         }
 
 
