@@ -21,8 +21,7 @@ import ro.clockworks.clocclib.core.gamepads.*;
 import ro.clockworks.clocclib.core.servotuner.AutoServo;
 import ro.clockworks.clocclib.core.servotuner.ServoPositionsManager;
 import ro.clockworks.clocclib.core.servotuner.injection.AutoServoParameters;
-import ro.clockworks.clocclib.core.servotuner.injection.AutoServoParametersImpl;
-import ro.clockworks.clocclib.core.servotuner.injection.AutoServoProvider;
+
 
 public class FtcCommonModule extends AbstractModule {
 
