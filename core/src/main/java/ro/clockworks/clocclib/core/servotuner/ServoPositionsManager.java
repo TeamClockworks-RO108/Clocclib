@@ -109,6 +109,14 @@ public class ServoPositionsManager {
         writeDb();
     }
 
+    public <T extends Enum<T>> void setValueInfo(AutoServo<T> servo, T position, double value) {
+        if (position == null)
+            return;
+
+        getPosition(servo, position).value(value);
+        writeDb();
+    }
+
     public void forEachServo(Consumer<AutoServo<?>> action) {
         registeredServos.forEach(action);
     }
