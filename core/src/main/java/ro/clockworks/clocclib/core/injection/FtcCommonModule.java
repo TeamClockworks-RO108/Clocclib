@@ -20,6 +20,7 @@ import ro.clockworks.clocclib.core.EdgeDetector;
 import ro.clockworks.clocclib.core.gamepads.*;
 import ro.clockworks.clocclib.core.servotuner.AutoServo;
 import ro.clockworks.clocclib.core.servotuner.ServoPositionsManager;
+import ro.clockworks.clocclib.core.servotuner.injection.AutoServoParameters;
 import ro.clockworks.clocclib.core.servotuner.injection.AutoServoParametersImpl;
 import ro.clockworks.clocclib.core.servotuner.injection.AutoServoProvider;
 
@@ -57,14 +58,8 @@ public class FtcCommonModule extends AbstractModule {
         bind(EdgeDetector.class).annotatedWith(Gamepad2.class).toInstance(mapper.getGamepadEdger(Gamepad2.class));
         bind(EdgeDetector.class).annotatedWith(GamepadConfig.class).toInstance(mapper.getGamepadEdger(GamepadConfig.class));
         bind(EdgeDetector.class).annotatedWith(GamepadTuner.class).toInstance(mapper.getGamepadEdger(GamepadTuner.class));
+        bindListener(Matchers.any(), new AutoServoListener(mapper));
         bindListener(Matchers.any(), new HardwareListener());
-
-        for (String servo : hardwareMap.servo.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList())) {
-            for (String analog : hardwareMap.analogInput.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList())) {
-                bind(AutoServo.class).annotatedWith(new AutoServoParametersImpl(servo, analog)).toProvider(new AutoServoProvider(servo, analog, mapper));
-            }
-            bind(AutoServo.class).annotatedWith(new AutoServoParametersImpl(servo, "")).toProvider(new AutoServoProvider(servo, "", mapper));
-        }
 
 
     }
@@ -82,6 +77,53 @@ public class FtcCommonModule extends AbstractModule {
                     }
                 }
                 clazz = clazz.getSuperclass();
+            }
+        }
+    }
+
+    private static class AutoServoListener implements TypeListener {
+
+        private final GamepadMapper mapper;
+
+        public AutoServoListener(GamepadMapper mapper) {
+            this.mapper = mapper;
+        }
+
+        @Override
+        public <I> void hear(TypeLiteral<I> type, TypeEncounter<I> encounter) {
+            Class<?> clazz = type.getRawType();
+            while (clazz != null) {
+                for (Field field : clazz.getDeclaredFields()) {
+                    if (field.isAnnotationPresent(AutoServoParameters.class)) {
+                        encounter.register(new AutoServoMembersInjector<>(field, mapper));
+                    }
+                }
+                clazz = clazz.getSuperclass();
+            }
+        }
+    }
+
+    private static class AutoServoMembersInjector<T> implements MembersInjector<T> {
+        private final Field field;
+        private final GamepadMapper mapper;
+
+
+        public AutoServoMembersInjector(Field field, GamepadMapper mapper) {
+            this.field = field;
+            this.mapper = mapper;
+            field.setAccessible(true);
+        }
+
+        @Override
+        public void injectMembers(Object instance) {
+            try {
+                AutoServoParameters params = field.getAnnotation(AutoServoParameters.class);
+                AutoServo<?> servo = new AutoServo<>(params.servoHardwareName(), params.analogHardwareName());
+                mapper.registerTunerApp(servo);
+                FtcCommonModule.globalInjector().injectMembers(servo);
+                field.set(instance, servo);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
         }
     }
