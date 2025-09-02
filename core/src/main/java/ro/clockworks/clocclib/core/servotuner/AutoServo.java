@@ -136,9 +136,10 @@ public class AutoServo<T extends Enum<T>> implements TunerApp {
     private double originalValue;
 
     private final EdgeDetector upEdge = new EdgeDetector(false);
-    private final EdgeDetector downEdge = new EdgeDetector(true);
+    private final EdgeDetector downEdge = new EdgeDetector(false);
     private final EdgeDetector leftEdge = new EdgeDetector(false);
-    private final EdgeDetector rightEdge = new EdgeDetector(true);
+    private final EdgeDetector rightEdge = new EdgeDetector(false);
+    private final EdgeDetector aEdge = new EdgeDetector(false);
 
     @Override
     public String name() {
@@ -150,6 +151,7 @@ public class AutoServo<T extends Enum<T>> implements TunerApp {
         leftEdge.onPress(() -> positionOffset(-1));
         upEdge.onPress(() -> editingValue = Math.min(editingValue + .01, 1));
         downEdge.onPress(() -> editingValue = Math.max(editingValue - .01, 0));
+        aEdge.onPress(() -> editingValue = originalValue);
     }
 
     private void positionOffset(int count) {
@@ -169,13 +171,17 @@ public class AutoServo<T extends Enum<T>> implements TunerApp {
         } else {
             telemetry.addLine("Auto tuning is not available. No analog input configured.");
         }
-        telemetry.addLine("Press LEFT and RIGHT to select which position to tune");
-        telemetry.addLine("Press UP and DOWN to adjust the current position");
+        telemetry.addLine("Press LEFT and RIGHT to select which position to tune. Navigating will save the current position!");
+        telemetry.addLine("Press UP and DOWN to adjust the current position. Press A to undo modifications");
+        telemetry.addLine("Editing position [" + (possiblePoses.indexOf(editingPosition)+1) + "/" + possiblePoses.size() + "] " + editingPosition.toString());
+        telemetry.addLine("Original value is " + originalValue);
+        telemetry.addLine("Current value is " + editingValue);
 
         leftEdge.update(gamepad.dpad_left);
         rightEdge.update(gamepad.dpad_right);
         upEdge.update(gamepad.dpad_up);
         downEdge.update(gamepad.dpad_down);
+        aEdge.update(gamepad.a);
 
         servo.setPosition(editingValue);
     }
@@ -190,6 +196,7 @@ public class AutoServo<T extends Enum<T>> implements TunerApp {
 
     @Override
     public void disableApp() {
+        positionsManager.setValueInfo(this, editingPosition, editingValue);
         appActive = false;
     }
 }
