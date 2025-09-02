@@ -36,7 +36,6 @@ public abstract class InjectedOpMode extends OpMode {
         mapper.preUpdate();
         robotInitLoop();
         servoPositionsManager.forEachServo(AutoServo::update);
-        mapper.postUpdate();
         long timeAfter = System.currentTimeMillis();
         telemetry.addData("Loop time", timeAfter - time);
         telemetry.update();
@@ -54,7 +53,6 @@ public abstract class InjectedOpMode extends OpMode {
         mapper.preUpdate();
         robotLoop();
         servoPositionsManager.forEachServo(AutoServo::update);
-        mapper.postUpdate();
         long timeAfter = System.currentTimeMillis();
         telemetry.addData("Loop time", timeAfter - time);
         telemetry.update();

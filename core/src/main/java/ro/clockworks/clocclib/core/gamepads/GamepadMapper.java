@@ -16,11 +16,11 @@ import ro.clockworks.clocclib.core.EdgeDetector;
 
 public class GamepadMapper {
 
-    private final Map<Class<? extends Annotation>, Gamepad> availableGamepads = Map.of(
-            Gamepad1.class, new Gamepad(),
-            Gamepad2.class, new Gamepad(),
-            GamepadConfig.class, new Gamepad(),
-            GamepadTuner.class, new Gamepad()
+    private final Map<Class<? extends Annotation>, HijackedGamepad> availableGamepads = Map.of(
+            Gamepad1.class, new HijackedGamepad(this),
+            Gamepad2.class, new HijackedGamepad(this),
+            GamepadConfig.class, new HijackedGamepad(this),
+            GamepadTuner.class, new HijackedGamepad(this)
     );
 
     private final Map<Class<? extends Annotation>, EdgeDetector> availableGamepadsEdgers = Map.of(
@@ -74,9 +74,6 @@ public class GamepadMapper {
         apps.add(app);
     }
 
-    public void enableBackcopy(boolean enabled) {
-        this.enableBackcopy = enabled;
-    }
     public void preUpdate() {
 
         // Copy from real gamepads to code gamepads
@@ -89,16 +86,6 @@ public class GamepadMapper {
         updateEdgers();
         updateTunerApps();
         printMappings();
-    }
-
-    public void postUpdate() {
-
-        // Copy from code gamepads back to real gamepads (for vibration support), if backcopy is enabled
-        if (enableBackcopy) {
-            for (int i = 0; i < realGamepads.length; i++) {
-                realGamepads[i].copy(availableGamepads.get(mappings[i]));
-            }
-        }
     }
 
     private void checkMappingsChange() {
@@ -146,6 +133,8 @@ public class GamepadMapper {
 
     private void configureTunerApps() {
         nextApp.onPress(() -> {
+            if (apps.isEmpty())
+                return;
             apps.get(selectedApp).disableApp();
             selectedApp++;
             if (selectedApp == apps.size())
@@ -153,6 +142,8 @@ public class GamepadMapper {
             apps.get(selectedApp).enableApp();
         });
         prevApp.onPress(() -> {
+            if (apps.isEmpty())
+                return;
             apps.get(selectedApp).disableApp();
             selectedApp--;
             if (selectedApp < 0)
@@ -160,15 +151,19 @@ public class GamepadMapper {
             apps.get(selectedApp).enableApp();
         });
         getGamepadEdger(GamepadTuner.class).onPress(() -> {
+            if (apps.isEmpty())
+                return;
             apps.get(selectedApp).enableApp();
         });
         getGamepadEdger(GamepadTuner.class).onRelease(() -> {
+            if (apps.isEmpty())
+                return;
             apps.get(selectedApp).disableApp();
         });
     }
 
     private void updateTunerApps() {
-        if (getGamepadEdger(GamepadTuner.class).state()) {
+        if (getGamepadEdger(GamepadTuner.class).state() && !apps.isEmpty()) {
             Gamepad tuner = getGamepad(GamepadTuner.class);
             nextApp.update(tuner.right_trigger > 0.05);
             prevApp.update(tuner.left_trigger > 0.05);
@@ -183,6 +178,14 @@ public class GamepadMapper {
 
     public EdgeDetector getGamepadEdger(Class<? extends Annotation> clazz) {
         return availableGamepadsEdgers.get(clazz);
+    }
+
+    protected Gamepad getRealGamepad(HijackedGamepad hijackedGamepad) {
+        for (int i = 0; i < realGamepads.length; i++) {
+            if (availableGamepads.get(mappings[i]) == hijackedGamepad)
+                return realGamepads[i];
+        }
+        return null;
     }
 
 
@@ -217,7 +220,7 @@ class MilticlickDetector {
         currentTime = time;
         detector.update(state);
 
-        if (!state && counter != 0 && time - lastTime > 500) {
+        if (!state && counter != 0 && time - lastTime > 300) {
             int cnt = counter;
             counter = 0;
             return cnt;
