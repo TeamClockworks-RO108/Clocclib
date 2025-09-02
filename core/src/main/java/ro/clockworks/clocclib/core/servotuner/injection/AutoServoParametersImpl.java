@@ -35,7 +35,10 @@ public class AutoServoParametersImpl implements AutoServoParameters, Serializabl
 
     @Override
     public int hashCode() {
-        return Objects.hash(servoHardwareName, analogHardwareName);
+        int sum = 0;
+        sum += 127 * ("servoHardwareName".hashCode() ^ servoHardwareName.hashCode());
+        sum += 127 * ("analogHardwareName".hashCode() ^ analogHardwareName.hashCode());
+        return sum;
     }
 
     @Override
